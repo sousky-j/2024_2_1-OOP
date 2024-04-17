@@ -17,7 +17,6 @@ void search_word(char*& inputline, char* word1, char* word2);//change용
 //insert: change&insert 용 (파라미터: 한 줄 정보, 삽입할 단어, front의 마지막 인덱스(삽입 시 backpart인덱스 이전 인덱스), backpart의 첫 인덱스)
 void insert(char*& line, char* word, int front_id, int back_id);//change&insert용
 void delete_N_merge(char* line, int word_len, int cols);//delete용
-void rows_N_cols_clear(int count);
 
 char frontpart[1000];
 char backpart[1000];
@@ -38,18 +37,14 @@ int main(void)
 	int count = 0;
 	int row_count = 0;
 	ifstream read_file;
-	ofstream write_file;
 	//////////////////////////////////
 	while (1)
 	{
-		cout << "커맨드 입력: ";
 		cin >> input_command;
 		if (!my_strcmp(input_command, command[0]))//open command part code
 		{
 			cin >> input_command2;
 			read_file.open(input_command2);
-			if (read_file.fail())
-				cout << "\aError opening test file\n";
 			while (!read_file.eof())
 			{
 				read_file.getline(inputline, 1000);
@@ -82,11 +77,11 @@ int main(void)
 				cout << "(" << rows[i] << ", " << cols[i] << ")";
 				if (i < count - 1)
 					cout << ", ";
+				rows[i] = 0;
+				cols[i] = 0;
 			}
 			cout << "\n--------------------\n";
 			//////////////////////////////////////
-
-			rows_N_cols_clear(count);
 			count = 0;
 		}
 		else if (!my_strcmp(input_command, command[2]))//change command part code
@@ -96,17 +91,17 @@ int main(void)
 
 			for (int i = 0; i < row_count; i++)
 				search_word(*(script + i), input_command2, input_command3);
-			for (int i = 0; i < row_count; i++)
-				cout << *(script + i) << "\n";
+			cout << "===change===\n" << input_command2 << " -> " << input_command3;
+			cout << "\n--------------------\n";
 		}
 		else if (!my_strcmp(input_command, command[3]))//insert command part code
 		{
 			int r, l;
 			cin >> r >> l >> input_command2;
 			int insert_word_len = my_strlen(input_command2);
-			insert(*(script + r), input_command2, l, l);
-			for (int i = 0; i < row_count; i++)
-				cout << *(script + i) << "\n";
+			insert(script[r], input_command2, l, l);
+			cout << "===insert===\n" << input_command2 << " Inserted into (" << r << ", " << l << ")";
+			cout << "\n--------------------\n";
 		}
 		else if (!my_strcmp(input_command, command[4]))//delete command part code
 		{
@@ -115,18 +110,30 @@ int main(void)
 			int word_len = my_strlen(input_command2);
 			for (int i = 0; i < row_count; i++)
 				search_word(*(script + i), input_command2);
-			cout << "delete " << input_command2 << "\n";
+			cout << "===delete===\nDelete" << input_command2;
+			cout << "\n--------------------\n";
 		}
 		else if (!my_strcmp(input_command, command[5]))//save command part code
 		{
-			
+			cin >> input_command2;
+			ofstream write_file;
+			write_file.open(input_command2);
+			for (int i = 0; i < row_count; i++)
+			{
+				write_file << *(script + i);
+				if (i < row_count - 1)
+					write_file << "\n";
+			}
+			if(write_file.is_open())
+				write_file.close();
+			cout << "===save===\nSave the file as \"" << input_command2 << "\"\n";
 		}
 		else if (!my_strcmp(input_command, command[6]))//exit command part code
 			break;
 		else//error command part code
 			cout << "error command\n";
 	}
-
+	cout << "Exit the program";
 	////////////////free memory/////////////////
 	if (script != NULL)
 	{
@@ -134,8 +141,8 @@ int main(void)
 			delete[] * (script + i);
 		delete[] script;
 	} 
-	read_file.close();
-	write_file.close();
+	if(read_file.is_open())
+		read_file.close();
 	///////////////////////////////////////////
 	return 0;
 }
@@ -285,13 +292,5 @@ void array_clear(char* arr)
 		arr[i] = NULL;
 		if (arr[i + 1] == '\0')
 			arr[i + 1] = NULL;
-	}
-}
-void rows_N_cols_clear(int count)
-{
-	for (int i = 0; i < count; i++)
-	{
-		rows[i] = 0;
-		cols[i] = 0;
 	}
 }
