@@ -14,7 +14,8 @@ class stack
 private:
     node* head;
     node* tail;
-    int siz = 0;
+    int num = 0;
+    char oper = NULL;
 public:
     stack() {
         head = NULL;
@@ -59,7 +60,7 @@ void stack::push(int a)
         tail->next->prev = tail;
         tail = tail->next;
     }
-    siz++;
+    num++;
 }
 
 void stack::pop()
@@ -75,7 +76,7 @@ void stack::pop()
         tail = tail->prev;
         delete tail->next;
         tail->next = NULL;
-        siz--;
+        num--;
     }
     else if (head == tail)
     {
@@ -83,18 +84,18 @@ void stack::pop()
         delete tail;
         head = NULL;
         tail = NULL;
-        siz--;
+        num--;
     }
 }
 
 void stack::size()
 {
-    cout << siz << "\n";
+    cout << num << "\n";
 }
 
 void stack::empty()
 {
-    if (siz == 0)
+    if (num == 0)
         cout << "1" << "\n";
     else
         cout << "0" << "\n";

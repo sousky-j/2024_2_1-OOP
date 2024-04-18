@@ -238,7 +238,8 @@ void insert(char*& line, char* word, int front_id, int back_id)
 	int front_len = my_strlen(frontpart);
 	my_strcat(frontpart + front_len, line + back_id);
 	front_len = my_strlen(frontpart);
-	delete[](line = NULL);
+	delete[] line;
+	line = nullptr;
 	line = new char[front_len + 1];
 	my_strcpy(line, frontpart, front_len);
 	array_clear(frontpart);
