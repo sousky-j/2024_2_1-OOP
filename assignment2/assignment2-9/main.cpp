@@ -1,0 +1,250 @@
+#define _CRT_SECURE_NO_WARNINGS
+#include <iostream>
+using namespace std;
+
+int my_strlen(const char* arr);
+void my_strcpy(char* arr1, const char* arr2, int arr2_len);
+bool my_strcmp(const char* arr1, const  char* arr2);
+
+class Student
+{
+private:
+	char* name;
+	char* studentID;
+	double Score;
+public:
+	Student()
+	{
+		this->name = NULL;
+		this->studentID = NULL;
+		this->Score = 0;
+	}
+	~Student()
+	{
+		delete[] this->name;
+		delete[] this->studentID;
+	}
+	void new_stu(char* name, char* studentID, double Score)
+	{
+		int len = my_strlen(name);
+		this->name = new char[len + 1];
+		my_strcpy(this->name, name, len);
+		len = my_strlen(studentID);
+		this->studentID = new char[len + 1];
+		my_strcpy(this->studentID, studentID, len);
+		this->Score = Score;
+	}
+	double return_Score() { return this->Score; }
+	char* return_name() { return this->name; }
+	char* return_studentID() { return this->studentID; }
+	void print()
+	{
+		cout << "Name : " << this->name << "\n";
+		cout << "Student ID : " << this->studentID << "\n";
+		cout << "Score : " << this->Score << "\n";
+		cout << "---------------\n";
+	}
+	void cpy(Student* a)
+	{
+		if (this->name != NULL)
+			delete[] this->name;
+		int len = my_strlen(a->return_name());
+		this->name = new char[len + 1];
+		my_strcpy(this->name, a->return_name(), len);
+		if (this->studentID != NULL)
+			delete[] this->studentID;
+		len = my_strlen(a->return_studentID());
+		this->studentID = new char[len + 1];
+		my_strcpy(this->studentID, a->return_studentID(), len);
+		this->Score = a->return_Score();
+	}
+};
+class school
+{
+private:
+	class Student* student_list;
+	int size = 0;
+public:
+	school()
+	{
+		this->student_list = NULL;
+	}
+	~school()
+	{
+		delete[] this->student_list;
+	}
+	void new_stu(char* name, char* studentID, double Score)
+	{
+		if (this->student_list == NULL)
+		{
+			this->student_list = new Student[100];
+		}
+		else if (size % 100 == 0 && size != 0)
+		{
+			Student tmp[100];
+			member_cpy(this->student_list, tmp);
+			delete[] this->student_list;
+			this->student_list = new Student[size + 100];
+			member_cpy(tmp, this->student_list + (size - 100));
+			size++;
+		}
+		this->student_list[this->size].new_stu(name, studentID, Score);
+		size++;
+	}
+	void member_cpy(Student* ori, Student* tmp)
+	{
+		for (int i = 0; i < 100; i++)
+			ori[i].cpy(tmp + i);
+	}
+	void sort_by_score()
+	{
+		int k = 0;
+		for (int i = 0; i < size - 1; i++)
+		{
+			k = i;
+			for (int j = i + 1; j < size; j++)
+			{
+				if (this->student_list[k].return_Score() < this->student_list[j].return_Score())
+					k = j;
+			}
+			if (k != i)
+				this->swap(&this->student_list[k], &this->student_list[i]);
+		}
+	}
+	void print()
+	{
+		cout << "=====print=====\n";
+		for (int i = 0; i < size; i++)
+			this->student_list[i].print();
+	}
+	void print_A_grade()
+	{
+		Student* test = new Student[size];
+		for (int i = 0; i < size; i++)
+			test[i].cpy(&this->student_list[i]);
+		for (int i = 0; i < size - 1; i++)
+		{
+			int k = i;
+			for (int j = i + 1; j < size; j++)
+			{
+				if (test[k].return_Score() < test[j].return_Score())
+					k = j;
+			}
+			if (k != i)
+				this->swap(&test[k], &test[i]);
+		}
+		int A_grade = size * (0.3);
+		cout << "=====A grade=====\n";
+		for (int i = 0; i < A_grade; i++)
+			test[i].print();
+	}
+	void print_B_grade()
+	{
+		Student* test = new Student[size];
+		for (int i = 0; i < size; i++)
+			test[i].cpy(&this->student_list[i]);
+		for (int i = 0; i < size - 1; i++)
+		{
+			int k = i;
+			for (int j = i + 1; j < size; j++)
+			{
+				if (test[k].return_Score() < test[j].return_Score())
+					k = j;
+			}
+			if (k != i)
+				this->swap(&test[k], &test[i]);
+		}
+		int A_grade = (size * (0.3));
+		int B_grade = (size / 2);
+		cout << "=====B grade=====\n";
+		for (int i = A_grade; i < B_grade; i++)
+			test[i].print();
+	}
+	void swap(Student* s1, Student* s2)
+
+	{
+		Student* tmp = new Student;
+		tmp->cpy(s1);
+		s1->cpy(s2);
+		s2->cpy(tmp);
+	}
+};
+
+int main(void)
+{
+	char command[6][20] = { "new_student","sort_by_score","print_all","print_A_grade","print_B_grade", "exit" };
+	char input_command[20];
+	char input_name[101];
+	char input_id[101];
+	double input_score;
+	school a;
+
+	while (1)
+	{
+		cin >> input_command;
+		if (my_strcmp(input_command, command[0]))//new_student part code
+		{
+			cin >> input_name >> input_id >> input_score;
+			a.new_stu(input_name, input_id, input_score);
+		}
+		else if (my_strcmp(input_command, command[1]))//sort part code
+		{
+			a.sort_by_score();
+		}
+		else if (my_strcmp(input_command, command[2]))//print_all part code
+		{
+			a.print();
+		}
+		else if (my_strcmp(input_command, command[3]))//print_A_grade part code
+		{
+			a.print_A_grade();
+		}
+		else if (my_strcmp(input_command, command[4]))//print_B_grade part code
+		{
+			a.print_B_grade();
+		}
+		else if (my_strcmp(input_command, command[5]))//exit aprt code
+		{
+			break;
+		}
+		else
+			cout << "error command\n";
+	}
+	cout << "Exit the program";
+	return 0;
+}
+
+int my_strlen(const char* arr)
+{
+
+	int len = 0;
+	for (int i = 0; i < 1000; i++)
+	{
+		if (arr[i] == '\0')
+			return len;
+		len++;
+	}
+	return len;
+}
+void my_strcpy(char* arr1, const char* arr2, int arr2_len)
+{
+	for (int i = 0; i < arr2_len; i++)
+		arr1[i] = arr2[i];
+	*(arr1 + arr2_len) = '\0';
+}
+
+bool my_strcmp(const char* arr1, const  char* arr2)
+{
+	int arr1_len = my_strlen(arr1);
+	int arr2_len = my_strlen(arr2);
+	if (arr1_len != arr2_len)
+		return false;
+	for (int i = 0; i < arr1_len; i++)
+	{
+		char input_token = arr1[i];
+		char saved_token = arr2[i];
+		if (input_token != saved_token)
+			return false;
+	}
+	return true;
+}

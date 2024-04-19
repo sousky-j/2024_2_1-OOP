@@ -13,11 +13,6 @@ int main(void)
 	mat = new int* [power_n];
 	for (int i = 0; i < power_n; i++)
 		*(mat + i) = new int[power_n];
-	for (int i = 0; i < power_n; i++)
-	{
-		for (int j = 0; j < power_n; j++)
-			*(*(mat + i) + j) = 0;
-	}
 	hadamard_mat(0, 0, power_n, 0);
 	cout << "\nHadamard Matrix of size " << power_n << "x" << power_n << ":\n";
 	for (int i = 0; i < power_n; i++)
