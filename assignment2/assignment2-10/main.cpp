@@ -228,7 +228,7 @@ void Tokenizer(school& a, char* line)
 	double score = 0;
 	int tag = 0;
 	int flag = 0;
-	
+
 	for (int i = 0; i <= line_len; i++)
 	{
 		if (line[i] == '\0' || line[i] == ',')
@@ -237,12 +237,12 @@ void Tokenizer(school& a, char* line)
 			{
 			case 0:
 				my_strcpy(name, line, i);
-				flag = i;
+				flag = i + 1;
 				tag++;
 				break;
 			case 1:
 				my_strcpy(stu_id, line + flag, i - flag);
-				flag = i;
+				flag = i + 1;
 				tag++;
 				break;
 			case 2:
@@ -253,56 +253,8 @@ void Tokenizer(school& a, char* line)
 			}
 		}
 	}
-	/*while(1)
-	{
-		if (line[i] == '\0')
-			break;
-
-		if (line[i] == ',')
-		{
-			switch (tag)
-			{
-			case 0:
-				my_strcpy(name, line, i);
-				tag = 1;
-				for (int j = i + 1; j < line_len; j++)
-				{
-					char c = line[j];
-					if (c != ' ')
-					{
-						flag = j;
-						break;
-					}
-				}
-				break;
-			case 1:
-				my_strcpy(stu_id, (line + flag), i - flag);
-				tag = 2;
-				for (int j = i + 1; j < line_len; j++)
-				{
-					char c = line[j];
-					if (c != ' ')
-					{
-						flag = j;
-						i = j;
-						break;
-					}
-				}
-				break;
-			}
-		}
-		if (line[i] == ' ' || line[i] == '\0')
-		{
-			char ch_score[4];
-			my_strcpy(ch_score, (line + flag), i - flag);
-			score = my_atoi(ch_score);
-			break;
-		}
-		i++;
-	}*/
 	a.new_stu(name, stu_id, score);
 }
-
 void delete_space(char* arr)
 {
 	int len = my_strlen(arr);
@@ -310,12 +262,13 @@ void delete_space(char* arr)
 	for (int i = 0; i < len; i++)
 	{
 		int ll = len;
-		if (arr[i] == ' ')
+		while (arr[i] != ' ')
 		{
 			for (int j = i; j < len - 1; j++)
 				arr[j] = arr[j + 1];
 			ll--;
 			arr[ll] = '\0';
+
 		}
 	}
 }
