@@ -3,37 +3,37 @@
 #include <fstream>
 using namespace std;
 
-int my_strlen(const char* arr);
-void my_strcpy(char* arr1, const char* arr2, int arr2_len);
-bool my_strcmp(const char* arr1, const  char* arr2);
-double my_atoi(char* arr);
-class Student
+int my_strlen(const char* arr);// 문자열의 길이를 반환하는 함수
+void my_strcpy(char* arr1, const char* arr2, int arr2_len);// 문자열을 복사하는 함수
+bool my_strcmp(const char* arr1, const  char* arr2);// 두 문자열이 같은지 비교하는 함수
+double my_atoi(char* arr);// 문자열을 double형으로 변환하는 함수
+class Student// 학생 정보를 담는 클래스
 {
 private:
-	char* name;
-	char* studentID;
-	double Score;
+	char* name;//이름
+	char* studentID;//학번
+	double Score;//점수
 public:
-	Student()
+	Student()//생성자
 	{
 		this->name = NULL;
 		this->studentID = NULL;
 		this->Score = 0;
 	}
-	~Student()
+	~Student()//소멸자
 	{
 		delete[] this->name;
 		delete[] this->studentID;
 	}
-	void new_stu(char* name, char* studentID, double Score)
+	void new_stu(char* name, char* studentID, double Score)//새 학생 생성
 	{
-		int len = my_strlen(name);
-		this->name = new char[len + 1];
-		my_strcpy(this->name, name, len);
-		len = my_strlen(studentID);
-		this->studentID = new char[len + 1];
-		my_strcpy(this->studentID, studentID, len);
-		this->Score = Score;
+		int len = my_strlen(name);//길이 측정
+		this->name = new char[len + 1];//할당
+		my_strcpy(this->name, name, len);//복사
+		len = my_strlen(studentID);//길이 측정
+		this->studentID = new char[len + 1];//할당
+		my_strcpy(this->studentID, studentID, len);//복사
+		this->Score = Score;//복사
 	}
 	double return_Score() { return this->Score; }
 	char* return_name() { return this->name; }
@@ -45,19 +45,19 @@ public:
 		cout << "Score : " << this->Score << "\n";
 		cout << "---------------\n";
 	}
-	void cpy(Student* a)
+	void cpy(Student* a)//클래스 내부 정보에 전달받은 학생 정보 복사
 	{
 		if (this->name != NULL)
 			delete[] this->name;
-		int len = my_strlen(a->return_name());
-		this->name = new char[len + 1];
-		my_strcpy(this->name, a->return_name(), len);
+		int len = my_strlen(a->return_name());//길이 측정
+		this->name = new char[len + 1];//할당
+		my_strcpy(this->name, a->return_name(), len);//복사
 		if (this->studentID != NULL)
 			delete[] this->studentID;
-		len = my_strlen(a->return_studentID());
-		this->studentID = new char[len + 1];
-		my_strcpy(this->studentID, a->return_studentID(), len);
-		this->Score = a->return_Score();
+		len = my_strlen(a->return_studentID());//길이 측정
+		this->studentID = new char[len + 1];//할당
+		my_strcpy(this->studentID, a->return_studentID(), len);//복사
+		this->Score = a->return_Score();//복사
 	}
 };
 class school
@@ -66,21 +66,21 @@ private:
 	class Student* student_list;
 	int size = 0;
 public:
-	school()
+	school()//생성자
 	{
 		this->student_list = NULL;
 	}
-	~school()
+	~school()//소멸자
 	{
 		delete[] this->student_list;
 	}
-	void new_stu(char* name, char* studentID, double Score)
+	void new_stu(char* name, char* studentID, double Score)// 새 학생 생성
 	{
-		if (this->student_list == NULL)
+		if (this->student_list == NULL)//배열 생성
 		{
 			this->student_list = new Student[100];
 		}
-		else if (size % 100 == 0 && size != 0)
+		else if (size % 100 == 0 && size != 0)//배열 크기 커지면 복사 후 다시 할당
 		{
 			Student tmp[100];
 			member_cpy(this->student_list, tmp);
@@ -97,7 +97,7 @@ public:
 		for (int i = 0; i < 100; i++)
 			ori[i].cpy(tmp + i);
 	}
-	void sort_by_score()
+	void sort_by_score()//선택 정렬로 학생 내림차순 정렬
 	{
 		int k = 0;
 		for (int i = 0; i < size - 1; i++)
@@ -120,6 +120,7 @@ public:
 	}
 	void print_A_grade()
 	{
+		///기존 학생 리스트 복사////////////////////
 		Student* test = new Student[size];
 		for (int i = 0; i < size; i++)
 			test[i].cpy(&this->student_list[i]);
@@ -134,13 +135,16 @@ public:
 			if (k != i)
 				this->swap(&test[k], &test[i]);
 		}
+		////////////////////////////////////////
+		//학생 수 계산
 		int A_grade = size * (0.3);
 		cout << "=====A grade=====\n";
-		for (int i = 0; i < A_grade; i++)
+		for (int i = 0; i < A_grade; i++)//학생 출력
 			test[i].print();
 	}
 	void print_B_grade()
 	{
+		///기존 학생 리스트 복사////////////////////
 		Student* test = new Student[size];
 		for (int i = 0; i < size; i++)
 			test[i].cpy(&this->student_list[i]);
@@ -155,13 +159,15 @@ public:
 			if (k != i)
 				this->swap(&test[k], &test[i]);
 		}
+		//////////////////////////////////////
+		//학생 수 계산
 		int A_grade = (size * (0.3));
 		int B_grade = (size / 2);
 		cout << "=====B grade=====\n";
-		for (int i = A_grade; i < B_grade; i++)
+		for (int i = A_grade; i < B_grade; i++)//학생 출력
 			test[i].print();
 	}
-	void swap(Student* s1, Student* s2)
+	void swap(Student* s1, Student* s2)//두 학생 스왑
 
 	{
 		Student* tmp = new Student;
@@ -174,7 +180,7 @@ void delete_space(char* arr);
 void Tokenizer(school& a, char* line);
 int main(void)
 {
-	char command[6][20] = { "load_student","sort_by_score","print_all","print_A_grade","print_B_grade", "exit" };
+	char command[6][20] = { "load_student","sort_by_score","print_all","print_A_grade","print_B_grade", "Exit" };
 	char input_command[20];
 	school a;
 	ifstream read_file;
@@ -184,7 +190,7 @@ int main(void)
 		if (my_strcmp(input_command, command[0]))//load_student part code
 		{
 			char inputline[100];
-			read_file.open("./student.txt");
+			read_file.open("student.txt");
 			while (!read_file.eof())
 			{
 				read_file.getline(inputline, 100);
@@ -233,27 +239,27 @@ void Tokenizer(school& a, char* line)
 	{
 		if (line[i] == '\0' || line[i] == ',')
 		{
-			switch (tag)
+			switch (tag)//, 구분자로 구분될 때마다 tag 변화, 그에 따른 구분
 			{
 			case 0:
-				my_strcpy(name, line, i);
+				my_strcpy(name, line, i);//이름 복사
 				flag = i + 1;
 				tag++;
 				break;
 			case 1:
-				my_strcpy(stu_id, line + flag, i - flag);
+				my_strcpy(stu_id, line + flag, i - flag);//학번 복사
 				flag = i + 1;
 				tag++;
 				break;
 			case 2:
 				char ch_score[4];
-				my_strcpy(ch_score, (line + flag), i - flag);
-				score = my_atoi(ch_score);
+				my_strcpy(ch_score, (line + flag), i - flag);//점수 복사
+				score = my_atoi(ch_score);//점수 atoi
 				break;
 			}
 		}
 	}
-	a.new_stu(name, stu_id, score);
+	a.new_stu(name, stu_id, score);//새 학생 생성
 }
 void delete_space(char* arr)
 {
@@ -262,13 +268,12 @@ void delete_space(char* arr)
 	for (int i = 0; i < len; i++)
 	{
 		int ll = len;
-		while (arr[i] != ' ')
+		while (arr[i] == ' ')
 		{
 			for (int j = i; j < len - 1; j++)
 				arr[j] = arr[j + 1];
 			ll--;
 			arr[ll] = '\0';
-
 		}
 	}
 }
@@ -307,14 +312,14 @@ bool my_strcmp(const char* arr1, const  char* arr2)
 {
 	int arr1_len = my_strlen(arr1);
 	int arr2_len = my_strlen(arr2);
-	if (arr1_len != arr2_len)
+	if (arr1_len != arr2_len)//길이 다르면 반환
 		return false;
 	for (int i = 0; i < arr1_len; i++)
 	{
 		char input_token = arr1[i];
 		char saved_token = arr2[i];
-		if (input_token != saved_token)
+		if (input_token != saved_token)//다르면 반환
 			return false;
 	}
-	return true;
+	return true;//같으면 반환
 }
