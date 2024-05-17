@@ -17,20 +17,20 @@ private:
 public:
 	membership()//멤버쉽 클래스를 선언하면 파일에서 멤버쉽 리스트를 전부 가져옴
 	{
-		this->cnt = 0;
-		ifstream read_file;
-		read_file.open("member_list.txt");
-		if (read_file.fail())
-			list = NULL;
+		this->cnt = 0;//멤버 수 초기화
+		ifstream read_file;//파일 읽기
+		read_file.open("member_list.txt");//멤버십 리스트 파일 열기
+		if (read_file.fail())//파일이 없으면
+			list = NULL;//리스트를 NULL로 초기화
 		else
 		{
 			list = NULL;
 			char line[51];//입력받을 정보
 			while (!read_file.eof())//파일 길이 측정
 			{
-				read_file.getline(line, 50);
-				read_file.getline(line, 50);
-				this->cnt++;
+				read_file.getline(line, 50);//아이디 가져오기
+				read_file.getline(line, 50);//비번 가져오기
+				this->cnt++;//멤버 수 증가
 			}
 			if (this->cnt > 0)
 			{
@@ -44,36 +44,36 @@ public:
 					strcpy(list[i].password, line);//비번 가져오기
 			}
 			}
-			read_file.close();
+			read_file.close();//파일 닫기
 		}
 	}
 	~membership()//멤버쉽 리스트를 파일에 저장함
 	{
-		ofstream write_file;
-		write_file.open("member_list.txt");
-		for (int i = 0; i < this->cnt; i++)
+		ofstream write_file;//파일 쓰기
+		write_file.open("member_list.txt");//멤버십 리스트 파일 열기
+		for (int i = 0; i < this->cnt; i++)//멤버 수만큼 반복
 		{
-			if (this->list[i].id[0] != '\0')
+			if (this->list[i].id[0] != '\0')//멤버가 있는 경우에만
 			{
-				write_file << this->list[i].id << "\n";
-				write_file << this->list[i].password;
-				if (i < cnt - 1)
-					write_file << "\n";
+				write_file << this->list[i].id << "\n";//아이디 파일에 출력
+				write_file << this->list[i].password;//비번 파일에 출력
+				if (i < cnt - 1)//마지막 멤버가 아니면
+					write_file << "\n";//개행
 			}
 		}
-		write_file.close();
+		write_file.close();//파일 닫기
 	}
 	bool login_correct(Member& a) const//아이디, 비번 확인해서 로그인 확인, 로그인 성공하면 아이디, 비번을 a에 저장
 	{
-		for (int i = 0; i < this->cnt; i++)
+		for (int i = 0; i < this->cnt; i++)//멤버 리스트에서 아이디 찾아서 비밀번호 확인
 		{
-			if (strcmp(a.id, this->list[i].id) == 0)
+			if (strcmp(a.id, this->list[i].id) == 0)//아이디가 같으면
 			{
-				Member tmp = decoding(this->list[i]);
-				if (strcmp(a.password, tmp.password) == 0)
+				Member tmp = decoding(this->list[i]);//복호화
+				if (strcmp(a.password, tmp.password) == 0)//비밀번호가 같으면
 				{
-					strcpy(a.id, tmp.id);
-					strcpy(a.password, tmp.password);
+					strcpy(a.id, tmp.id);//아이디 저장
+					strcpy(a.password, tmp.password);//비밀번호 저장
 					return 1;
 				}
 			}
@@ -103,14 +103,12 @@ public:
 		this->cnt++;//멤버 수 증가
 		return 1;//성공
 	}
-	bool ps_correct(Member a) const
+	bool ps_correct(Member a) const//비밀번호가 조건에 맞는지 확인, 맞으면 1, 아니면 0 반환
 	{
-		//비밀번호에 적어도 하나의 알파벳, 하나의 숫자, 하나의 특수문자(!@#$%^&*())가 포함되어야 함
-		//최소 10자리 이상, 최대 20자리여야 한다
-		int alpha = 0, num = 0, special = 0;
-		if (strlen(a.password) < 10 || strlen(a.password) > 20)
+		int alpha = 0, num = 0, special = 0;//알파벳, 숫자, 특수문자가 있는지 확인하는 변수
+		if (strlen(a.password) < 10 || strlen(a.password) > 20)//비밀번호 길이가 10자리 미만이거나 20자리 초과이면
 			return 0;
-		for (int i = 0; i < strlen(a.password); i++)
+		for (int i = 0; i < strlen(a.password); i++)//비밀번호를 한 글자씩 확인
 		{
 			if (a.password[i] >= 'a' && a.password[i] <= 'z')//소문자
 				alpha = 1;
@@ -121,7 +119,7 @@ public:
 			else if (a.password[i] == '!' || a.password[i] == '@' || a.password[i] == '#' || a.password[i] == '$' || a.password[i] == '%' || a.password[i] == '^' || a.password[i] == '&' || a.password[i] == '*')//특수문자
 				special = 1;
 		}
-		if (alpha && num && special)
+		if (alpha && num && special)//알파벳, 숫자, 특수문자가 모두 있으면
 			return 1;
 		else
 			return 0;
@@ -141,55 +139,53 @@ public:
 	int get_cnt() { return this->cnt; }
 	Member Encoding(Member a) const//시저 암호화 함수
 	{
-		//비밀번호를 시저 암호화
-		//알파벳은 대소문자 구분 있게 암호화
-		//숫자와 특수문자는 암호화하지 않음
-		//암호화는 아이디의 길이만큼 오른쪽으로 이동
 		Member b{};
 		strcpy(b.id, a.id);
 		for (int i = 0; i < strlen(a.password); i++)
 		{
 			if (a.password[i] >= 'a' && a.password[i] <= 'z')//소문자
 			{
-				b.password[i] = a.password[i] + strlen(a.id);
-				if (b.password[i] > 'z')
-					b.password[i] -= 26;
+				int c = a.password[i] - 'a';
+				c+=strlen(a.id);
+				c %= 26;
+				b.password[i] = c + 'a';//아이디 길이만큼 오른쪽으로 이동
 			}
 			else if (a.password[i] >= 'A' && a.password[i] <= 'Z')//대문자
 			{
-				b.password[i] = a.password[i] + strlen(a.id);
-				if (b.password[i] > 'Z')
-					b.password[i] -= 26;
+				int c = a.password[i] - 'A';
+				c += strlen(a.id);
+				c %= 26;
+				b.password[i] = c + 'A';//아이디 길이만큼 오른쪽으로 이동
 			}
 			else
-				b.password[i] = a.password[i];
+				b.password[i] = a.password[i];//알파벳이 아니면 그대로 저장
 		}
 		return b;
 	}
 	Member decoding(Member a) const//시저 복호화 함수
 	{
-		//비밀번호를 시저 복호화
-		//알파벳은 대소문자 구분 있게 복호화
-		//숫자와 특수문자는 복호화하지 않음
-		//복호화는 아이디의 길이만큼 왼쪽으로 이동
-		Member b{};
-		strcpy(b.id, a.id);
+		Member b{};//복호화된 정보 저장할 멤버
+		strcpy(b.id, a.id);//아이디 복사
 		for (int i = 0; i < strlen(a.password); i++)
 		{
 			if (a.password[i] >= 'a' && a.password[i] <= 'z')//소문자
 			{
-				b.password[i] = a.password[i] - strlen(a.id);
-				if (b.password[i] < 'a')
-					b.password[i] += 26;
+				int c = a.password[i] - 'a';//알파벳 위치
+				c -= strlen(a.id);//아이디 길이만큼 왼쪽으로 이동
+				if(c<0)//음수일 때
+					c += 26;
+				b.password[i] = c + 'a';//아이디 길이만큼 왼쪽으로 이동
 			}
 			else if (a.password[i] >= 'A' && a.password[i] <= 'Z')//대문자
 			{
-				b.password[i] = a.password[i] - strlen(a.id);
-				if (b.password[i] < 'A')
-					b.password[i] += 26;
+				int c = a.password[i] - 'A';//알파벳 위치
+				c -= strlen(a.id);//아이디 길이만큼 왼쪽으로 이동
+				if (c < 0)//음수일 때
+					c += 26;
+				b.password[i] = c + 'A';//아이디 길이만큼 왼쪽으로 이동
 			}
 			else
-				b.password[i] = a.password[i];
+				b.password[i] = a.password[i];//알파벳이 아니면 그대로 저장
 		}
 		return b;
 	}
@@ -234,9 +230,9 @@ int main()
 		else if (input == 2)//등록
 		{
 			cout << "User id: ";
-			cin>>input_user.id;
+			cin>>input_user.id;//아이디 입력
 			cout << "password: ";
-			cin>>input_user.password;
+			cin>>input_user.password;//비밀번호 입력
 			cout << "--------------------\n";
 			if (!a.register_member(input_user))//등록 실패
 				cout << "Invalid.\n";

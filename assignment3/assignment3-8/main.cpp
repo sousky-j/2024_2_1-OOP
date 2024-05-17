@@ -8,15 +8,16 @@ private:
 	Node<T>* m_Next;
 	T m_Data;
 public:
-	Node(T data) {
-		this->m_Data = data;
-		this->m_Next = nullptr;
+	Node(T data) {//생성자
+		this->m_Data = data;//데이터 저장
+		this->m_Next = nullptr;//다음 노드를 nullptr로 초기화
 	}
-	~Node()
+	~Node()//소멸자
 	{
-		this->m_Data = 0;
-		this->m_Next = nullptr;
+		this->m_Data = 0;//데이터를 0으로 초기화
+		this->m_Next = nullptr;//다음 노드를 nullptr로 초기화
 	}
+	//getter, setter
 	T getData() { return m_Data; }
 	Node<T>* getnext() { return m_Next; }
 	void setData(T data) { this->m_Data = data; }
@@ -30,47 +31,47 @@ private:
 	Node<T>* m_Front;
 	Node<T>* m_Back;
 public:
-	Queue() {
+	Queue() {//생성자
 		m_Front = nullptr;
 		m_Back = nullptr;
 	}
 	~Queue() {
-		while (m_Front != nullptr) {
-			Node<T>* temp = m_Front;
-			m_Front = m_Front->getnext();
-			delete temp;
+		while (m_Front != nullptr) {//큐가 비어있지 않다면
+			Node<T>* temp = m_Front;//임시 노드에 m_Front를 저장
+			m_Front = m_Front->getnext();//m_Front를 다음 노드로 이동
+			delete temp;//임시 노드 삭제
 		}
 	}
-	void enqueue(T data) {
-		Node<T>* newNode = new Node<T>(data);
-		if (m_Front == nullptr) {
-			m_Front = newNode;
-			m_Back = newNode;
+	void enqueue(T data) {//큐에 데이터 삽입
+		Node<T>* newNode = new Node<T>(data);//새로운 노드 생성
+		if (m_Front == nullptr) {//큐가 비어있다면
+			m_Front = newNode;//m_Front에 새로운 노드 저장
+			m_Back = newNode;//m_Back에 새로운 노드 저장
 		}
 		else {
-			m_Back->setNext(newNode);
-			m_Back = newNode;
+			m_Back->setNext(newNode);//m_Back의 다음 노드를 새로운 노드로 설정
+			m_Back = newNode;//m_Back을 새로운 노드로 설정
 		}
 	}
 	T dequeue()
 	{
-		if (this->m_Front == nullptr) {
+		if (this->m_Front == nullptr) {//큐가 비어있다면
 			cout << "Queue is empty" << "\n";
 			return -1;
 		}
-		Node<T>* temp = m_Front;
-		T data = m_Front->getData();
-		m_Front = m_Front->getnext();
-		delete temp;
-		return data;
+		Node<T>* temp = m_Front;//임시 노드에 m_Front 저장
+		T data = m_Front->getData();//data에 m_Front의 데이터 저장
+		m_Front = m_Front->getnext();//m_Front를 다음 노드로 이동
+		delete temp;//임시 노드 삭제
+		return data;//data 반환
 	}
-	bool isEmpty() { return m_Front == nullptr; }
-	T front() { return m_Front->getData(); }
-	void print() {
-		Node<T>* temp = m_Front;
-		while (temp != nullptr) {
-			cout << temp->getData() << " ";
-			temp = temp->getnext();
+	bool isEmpty() { return m_Front == nullptr; }//큐가 비어있는지 확인
+	T front() { return m_Front->getData(); }//큐의 맨 앞 데이터 반환
+	void print() {//큐 출력
+		Node<T>* temp = m_Front;//임시 노드에 m_Front 저장
+		while (temp != nullptr) {//큐가 비어있지 않다면
+			cout << temp->getData() << " ";//데이터 출력
+			temp = temp->getnext();//다음 노드로 이동
 		}
 		cout << "\n";
 	};
@@ -78,6 +79,7 @@ public:
 
 int main()
 {
+	////////////예시////////////
 	Queue<int> q;
 	q.print();
 	q.enqueue(1);
@@ -97,5 +99,6 @@ int main()
 	q.dequeue();
 	q.print();
 	cout << q.isEmpty() << "\n";
+	///////////////////////////
 	return 0;
 }
