@@ -3,6 +3,7 @@
 using namespace std;
 
 int my_atoi(const char* arr);
+int my_strlen(char* arr);
 
 // 노드 클래스 정의
 class node
@@ -320,4 +321,11 @@ int my_atoi(const char* arr)
         i++;
     }
     return sum;
+}
+
+int my_strlen(char* arr)
+{
+    int len = 0;
+    while (arr[len] != '\0') len++;
+    return len;
 }
