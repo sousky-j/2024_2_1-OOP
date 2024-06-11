@@ -11,6 +11,7 @@ struct Curblock
     string cur_block[4][4];//색상 담을 배열
     int cur_encoding_block[4][4];//인코딩 할 변수
     string shape;
+    int axis[2];//뿌요면 사용, 0은 row, 1은 col
 };
 
 class Game

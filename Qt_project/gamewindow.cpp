@@ -238,7 +238,6 @@ void GameWindow::drawNext()
 
     int LENGTH = p_game->LENGTH;
     string* cur_next = p_game->next;
-
     if(p_game->block_stop)//블록이 멈춰서 true면 생성하기, 생성
     {
         generateblock();
@@ -259,19 +258,89 @@ void GameWindow::drawNext()
 }
 void GameWindow::dropblock() // 블록 드롭 함수 추가
 {
-    delpreinfo();//이전 정보 제거
+    delpreinfo(); //이전 정보 제거
 
     if (blockcorrect(p_game->curblock.cur_encoding_block, p_game->axis_row + 1, p_game->axis_col))
         p_game->axis_row++;//블록 내려가도 되면 row 증가
     else
         p_game->block_stop = true;//블록을 보드에 고정시킴
 
-    blockplace();
+    blockplace(p_game->curblock, 0);
     if(p_game->block_stop)//블록이 멈추면 인코딩 정보를 보드에 업데이트
+        harddrop();
+    update();
+}
+void GameWindow::del_line()
+{
+    int ROW=p_game->ROW;
+    int COL=p_game->COL;
+    int tmp_row=ROW-1;//보드의 맨 아래 인덱스
+    int flag=0;
+    for(int i=0;i<ROW;i++)
     {
-        encoding_update();
-        overcheck();
+        flag=COL;//블록이 전부 -1인지 체크==전부 테트로미노인지.
+        for(int j=0;j<COL;j++)
+        {
+            if(p_game->encoding_board[i][j]==-1)
+                flag--;
+            else
+                qDebug()<<p_game->encoding_board[i][j];
+        }
+        if(flag==0)//모든 줄에 -1이었으므로 테트로미노가 지워져야 함
+        {
+            for(int j=0;j<COL;j++)
+            {
+                p_game->encoding_board[i][j]=0;
+                p_game->board[i][j]="White";
+            }
+        }
     }
+    int **encoding_tmp=new int*[ROW];//인코딩 tmp 테이블
+    string **tmp=new string*[ROW];//컬러 tmp 테이블
+    for(int i=0;i<ROW;i++)
+    {
+        encoding_tmp[i]=new int[COL];
+        tmp[i]=new string[COL];
+    }
+    for(int i=0;i<ROW;i++)//tmp 테이블들 초기화
+    {
+        for(int j=0;j<COL;j++)
+        {
+            tmp[i][j]="White";
+            if(i<2)
+                tmp[i][j]="Gray";
+            encoding_tmp[i][j]=0;
+        }
+    }
+    for(int i=0;i<ROW;i++)
+    {
+        flag=10;
+        for(int j=0;j<COL;j++)
+        {
+            if(p_game->encoding_board[ROW-1-i][j]==0)
+                flag--;
+            else
+                break;
+        }
+        if(flag!=0)//빈 칸이 아니므로 == 정보가 있으므로
+        {
+            for(int j=0;j<COL;j++)
+            {
+                encoding_tmp[tmp_row][j]=p_game->encoding_board[ROW-1-i][j];
+                tmp[tmp_row][j]=p_game->board[ROW-1-i][j];
+            }
+            tmp_row--;
+        }
+    }
+    for(int i=0;i<ROW;i++)
+    {
+        delete[] p_game->board[i];
+        delete[] p_game->encoding_board[i];
+    }
+    delete[] p_game->board;
+    delete[] p_game->encoding_board;
+    p_game->board=tmp;
+    p_game->encoding_board=encoding_tmp;
     update();
 }
 void GameWindow::generateblock()
@@ -327,7 +396,7 @@ void GameWindow::generateblock()
     if(!blockcorrect(p_game->curblock.cur_encoding_block, p_game->axis_row, p_game->axis_col))
         over();
     else
-        blockplace();
+        blockplace(p_game->curblock, 0);
     update();
 }
 void GameWindow::movecol(int a) //왼,오 방향키 눌렀을 때
@@ -335,7 +404,7 @@ void GameWindow::movecol(int a) //왼,오 방향키 눌렀을 때
     delpreinfo();
     if(blockcorrect(p_game->curblock.cur_encoding_block, p_game->axis_row, p_game->axis_col+a))
         p_game->axis_col+=a;
-    blockplace();
+    blockplace(p_game->curblock, 0);
     update();
 }
 void GameWindow::rotate(int a) //0이면 x(시계), 1이면 z(반시계)로 회전
@@ -385,7 +454,7 @@ void GameWindow::rotate(int a) //0이면 x(시계), 1이면 z(반시계)로 회�
             }
         }
     }
-    blockplace();
+    blockplace(p_game->curblock, 0);
     update();
 }
 void GameWindow::harddrop()// 하드 드롭
@@ -398,10 +467,91 @@ void GameWindow::harddrop()// 하드 드롭
         if(blockcorrect(p_game->curblock.cur_encoding_block,p_game->axis_row+1, p_game->axis_col))
             p_game->axis_row++;
     }
-    blockplace();
-    encoding_update();
+    if(p_game->curblock.shape.length()==2)//뿌요는 분리되도록 만듬
+    {
+        Curblock* pu;//0은 중심블록, 1은 옆 블록
+        pu = new Curblock[2];
+        generate_pu(pu);
+
+        if(pu[0].axis[0]>=pu[1].axis[0])//중심 뿌요가 옆 뿌요보다 아래거나 같으면 중심부터 아니면 옆부터
+        {
+            for(int i=0;i<ROW;i++)
+            {
+                if(blockcorrect(pu[0].cur_encoding_block,pu[0].axis[0]+1, pu[0].axis[1]))
+                    pu[0].axis[0]++;
+            }
+            blockplace(pu[0], 1);
+            encoding_update(pu[0], 1);
+
+            for(int i=0;i<ROW;i++)
+            {
+                if(blockcorrect(pu[0].cur_encoding_block,pu[1].axis[0]+1, pu[1].axis[1]))
+                    pu[1].axis[0]++;
+            }
+            blockplace(pu[1], 1);
+            encoding_update(pu[1], 1);
+        }
+        else
+        {
+            for(int i=0;i<ROW;i++)
+            {
+                if(blockcorrect(pu[0].cur_encoding_block,pu[1].axis[0]+1, pu[1].axis[1]))
+                    pu[1].axis[0]++;
+            }
+            blockplace(pu[1], 1);
+            encoding_update(pu[1], 1);
+
+            for(int i=0;i<ROW;i++)
+            {
+                if(blockcorrect(pu[0].cur_encoding_block,pu[0].axis[0]+1, pu[0].axis[1]))
+                    pu[0].axis[0]++;
+            }
+            blockplace(pu[0], 1);
+            encoding_update(pu[0], 1);
+        }
+        delete[] pu;
+    }
+    else
+    {
+        blockplace(p_game->curblock, 0);
+        encoding_update(p_game->curblock, 0);
+    }
+    del_line();
     overcheck();
     update();
+}
+void GameWindow::generate_pu(Curblock* pu)
+{
+    //(1,1)의 좌표를 curblock과 같게 초기화
+    pu[0].axis[0]=p_game->axis_row;
+    pu[0].axis[1]=p_game->axis_col;
+
+    for(int i=0;i<4;i++)//encoding matrix initialization to 0
+    {
+        for(int j=0;j<4;j++)
+        {
+            pu[0].cur_encoding_block[i][j]=0;
+            pu[1].cur_encoding_block[i][j]=0;
+        }
+    }
+
+    //옆 블록 위치 찾기
+    for(int i=0;i<3;i++)
+    {
+        for(int j=0;j<3;j++)
+        {
+            if(p_game->curblock.cur_encoding_block[i][j]==7 && (i!=j))
+            {
+                pu[1].cur_block[1][1]=p_game->curblock.cur_block[i][j];
+                pu[1].axis[0]=p_game->axis_row+i-1;
+                pu[1].axis[1]=p_game->axis_col+j-1;
+            }
+        }
+    }
+    //중심블록 위치는 항상 [1,1]
+    pu[0].cur_encoding_block[1][1]=7;
+    pu[1].cur_encoding_block[1][1]=7;//옆 블록 위치도 [1,1]로 고정
+    pu[0].cur_block[1][1]=p_game->curblock.cur_block[1][1];
 }
 void GameWindow::delpreinfo()
 {
@@ -423,50 +573,72 @@ void GameWindow::delpreinfo()
             }
         }
     }
-
     for(int i=0;i<2;i++)
         for(int j=0;j<COL;j++)
             p_game->board[i][j]="Gray";//맨 위 두 칸은 보드의 색상을 회색으로 유지함.
-
 }
-void GameWindow::blockplace()// 블록을 보드에 놓기
+void GameWindow::blockplace(Curblock block, int a)// 블록을 보드에 놓기
 {
     int ROW=p_game->ROW;
     int COL=p_game->COL;
+    int axis_row, axis_col;
+    if(a)
+    {
+        axis_row=block.axis[0];
+        axis_col=block.axis[1];
+    }
+    else
+    {
+        axis_row=p_game->axis_row;
+        axis_col=p_game->axis_col;
+    }
     for (int i = 0; i < 4; i++)
     {
         for (int j = 0; j < 4; j++)
         {
-            if (p_game->curblock.cur_encoding_block[i][j] != 0)
+            if (block.cur_encoding_block[i][j] != 0)
             {
-                int rows=p_game->axis_row + i;
-                int cols=p_game->axis_col + j;
+                int rows=axis_row + i;
+                int cols=axis_col + j;
                 if (rows >= 0 && rows < ROW && cols >= 0 && cols < COL)
                 {
-                    p_game->board[rows][cols] = p_game->curblock.cur_block[i][j];//색상을 보드에 업데이트
-                    p_game->encoding_board[rows][cols]=p_game->curblock.cur_encoding_block[i][j];//인코딩 정보를 보드에 업데이트
+                    p_game->board[rows][cols] = block.cur_block[i][j];//색상을 보드에 업데이트
+                    p_game->encoding_board[rows][cols]=block.cur_encoding_block[i][j];//인코딩 정보를 보드에 업데이트
                 }
             }
         }
     }
 }
-void GameWindow::encoding_update()
+void GameWindow::encoding_update(Curblock block, int a)
 {
+    int ROW=p_game->ROW;
+    int COL=p_game->COL;
+    int axis_row, axis_col;
+    if(a)
+    {
+        axis_row=block.axis[0];
+        axis_col=block.axis[1];
+    }
+    else
+    {
+        axis_row=p_game->axis_row;
+        axis_col=p_game->axis_col;
+    }
     for (int i = 0; i < 4; i++)
     {
         for (int j = 0; j < 4; j++)
         {
-            int rows=p_game->axis_row + i;
-            int cols=p_game->axis_col + j;
-            if(blockcorrect(p_game->curblock.cur_encoding_block, rows, cols))
+            if(block.cur_encoding_block[i][j] != 0)
             {
-                if(p_game->encoding_board[rows][cols]==1)
-                    p_game->encoding_board[rows][cols]=-1;
-                else if(p_game->encoding_board[rows][cols]==7)
+                int rows=axis_row + i;
+                int cols=axis_col + j;
+                if (rows >= 0 && rows < ROW && cols >= 0 && cols < COL)
                 {
-                    for(int k=0;k<2;k++)
+                    if(p_game->encoding_board[rows][cols]==1)
+                        p_game->encoding_board[rows][cols]=-1;
+                    else if(p_game->encoding_board[rows][cols]==7)
                     {
-                        switch (p_game->board[rows][cols][k])
+                        switch (p_game->board[rows][cols][0])
                         {
                         case 'R':
                             p_game->encoding_board[rows][cols]=2;
@@ -515,7 +687,6 @@ bool GameWindow::blockcorrect(int tmp[4][4], int posX, int posY) {
                     return false;
                 if(p_game->encoding_board[x][y] != 0)
                     return false;
-
             }
         }
     }
