@@ -100,7 +100,6 @@ PuyopuyoTetrisGame::PuyopuyoTetrisGame() : Game(18, 8, 5)
         if(i==LENGTH) i=0;
         cnt++;
     }
-
     score = 2;
 }
 

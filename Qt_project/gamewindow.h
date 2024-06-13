@@ -42,6 +42,13 @@ public:
     void overcheck();//회색 칸에 블록이 있으면 게임 오버
     void generate_pu(Curblock* pu);//curblock에서 뿌요 객체 분리
     void del_line();//테트리스에서 지우는 함수
+    bool is_valid(int x, int y); // 인덱스 유효성 검사 함수
+    void bfs_pu(int x, int y, vector<vector<bool>>& visited, vector<pair<int, int>>& to_pop);//완탐을 위해 bfs하는 함수
+    void main_delete_puyo();//뿌요 지울 때 호출하는 메인 삭제 함수
+    void pu_drop();//뿌요 지우고 중력 적용하는 함수
+    bool del_pu();//실질적으로 뿌요 지우는 함수
+    void drop_tet_on_pu();//테트로미노가 내려가고 내리는 로직 함수
+    bool pu_under_correct();//테트로미노가 내려갈 때 비어있거나 뿌요만 있는지
 
     unordered_map<string, QColor> Colors = {
         {"White", QColor(255, 255, 255)},//literally
@@ -60,7 +67,12 @@ public:
         {"R", QColor(255, 0, 0)}        // Red
     };
     string block_shape[7]={"I", "J", "L", "S", "Z", "T", "O"};//block 테이블과 인덱스의 블록 모양이 동일한 배열
+    int dx[4] = {1,0,-1,0}; // 상하좌우 네 방향을 의미
+    int dy[4] = {0,1,0,-1}; // 상하좌우 네 방향을 의미
     int timer;
+
+    string pute_block[5][5];//뿌요테트할 때 필요한 블록
+    int pute_encoding_block[5][5];// 이하동문_인코딩
 
     random_device rd;
 
@@ -68,6 +80,7 @@ private:
     Game* p_game;
     QString GAMENAME;
     GameoverWindow* gameoverwindow;
+
 };
 
 #endif // GAMEWINDOW_H

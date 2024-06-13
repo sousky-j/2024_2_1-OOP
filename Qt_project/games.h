@@ -2,8 +2,9 @@
 #define GAMES_H
 
 #include <string>
-#include <QQueue>
 #include <random>
+#include <QVector>
+#include <QQueue>
 using namespace std;
 
 struct Curblock
@@ -84,15 +85,12 @@ public:
          "T", "J", "L", "O", "I", "S", "Z"};
 
     int score;//점수
-
     int axis_row;//현재 위치 row
     int axis_col;//현재 위치 col
-
     bool gameover;//게임 오버인지 체크
-
     bool block_stop;//false면 생성 X, true면 생성하기
 
-    random_device rd;
+    random_device rd;//난수를 위한 변수 선언
 };
 
 class PuyopuyoGame : public Game
