@@ -7,6 +7,7 @@
 #include <QPainter>
 #include <QTimerEvent>
 #include <QKeyEvent>
+#include <QTimer>
 #include "Games.h"
 #include "GameOverWindow.h"
 
@@ -49,7 +50,8 @@ public:
     bool del_pu();//실질적으로 뿌요 지우는 함수
     void drop_tet_on_pu();//테트로미노가 내려가고 내리는 로직 함수
     bool pu_under_correct();//테트로미노가 내려갈 때 비어있거나 뿌요만 있는지
-
+    void swap_drop_tet();//뿌요 아래로 테트가 내려가도록 보드를 조정하는 함수
+    void delay();
     unordered_map<string, QColor> Colors = {
         {"White", QColor(255, 255, 255)},//literally
         {"Gray", QColor(128,128,128)},  //literally
@@ -69,10 +71,9 @@ public:
     string block_shape[7]={"I", "J", "L", "S", "Z", "T", "O"};//block 테이블과 인덱스의 블록 모양이 동일한 배열
     int dx[4] = {1,0,-1,0}; // 상하좌우 네 방향을 의미
     int dy[4] = {0,1,0,-1}; // 상하좌우 네 방향을 의미
-    int timer;
 
-    string pute_block[5][5];//뿌요테트할 때 필요한 블록
-    int pute_encoding_block[5][5];// 이하동문_인코딩
+    int wiro[4];//칸이 얼마나 올라가야 하는지 저장해놓는 배열
+    int timer;
 
     random_device rd;
 

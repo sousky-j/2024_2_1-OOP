@@ -452,27 +452,73 @@ void GameWindow::harddrop()// 하드 드롭
 }
 void GameWindow::drop_tet_on_pu()
 {
-    int ROW=p_game->ROW;
-    for(int i=0;i<5;i++)//변환 배열 초기화
+    for(int i=0;i<4;i++)
     {
-        for(int j=0;j<5;j++)
+        wiro[i]=0;
+        for(int j=0;j<4;j++)
         {
-            pute_encoding_block[i][j]=0;
-            pute_block[i][j]="White";
-            if(i>0 && j>0)
+            if(p_game->curblock.cur_encoding_block[j][i]==1)
+                wiro[i]++;
+        }
+    }
+
+    while(1)
+    {
+        delpreinfo();
+        if(pu_under_correct())
+            swap_drop_tet();
+        else
+        {
+            blockplace(p_game->curblock, 0);
+            break;
+        }
+    }
+}
+void GameWindow::swap_drop_tet()
+{
+    p_game->axis_row++;
+
+    for(int i=0;i<4;i++)
+    {
+        int rows=p_game->axis_row+i;
+        int cols=p_game->axis_col;
+        for(int j=0;j<4;j++)
+        {
+            if(is_valid(rows,cols+j))
             {
-                pute_encoding_block[i][j]=p_game->curblock.cur_encoding_block[i][j];
-                pute_block[i][j]=p_game->curblock.cur_block[i][j];
+                int enco=p_game->encoding_board[rows][cols+j];
+                if(p_game->curblock.cur_encoding_block[i][j]==1 && enco>=2 && enco<=6)
+                {
+                    p_game->board[rows-wiro[j]][cols+j]=p_game->board[rows][cols+j];
+                    p_game->encoding_board[rows-wiro[j]][cols+j]=p_game->encoding_board[rows][cols+j];
+                    p_game->board[rows][cols + j] = "White";
+                    p_game->encoding_board[rows][cols + j] = 0;
+                }
             }
         }
     }
-    for(int i=0;i<ROW;i++)
+    blockplace(p_game->curblock, 0);
+}
+bool GameWindow::pu_under_correct()
+{
+    int ROW=p_game->ROW;
+    int COL=p_game->COL;
+    for(int i = 0; i < 4; i++)
     {
-        if(pu_under_correct())
+        for(int j = 0; j < 4; j++)
         {
-
+            if(p_game->curblock.cur_encoding_block[i][j] == 1)
+            {
+                int x = p_game->axis_row + i + 1;
+                int y = p_game->axis_col + j;
+                if (x<0 || x>=ROW || y<0 || y>=COL)
+                    return false;
+                if(p_game->encoding_board[x][y] == -1)
+                    return false;
+            }
         }
     }
+    return true;
 }
 void GameWindow::del_line()
 {
@@ -715,7 +761,6 @@ void GameWindow::blockplace(Curblock block, int a)// 블록을 보드에 놓기
     {
         for (int j = 0; j < 4; j++)
         {
-
             int rows=axis_row + i;
             int cols=axis_col + j;
             if (block.cur_encoding_block[i][j] != 0 && is_valid(rows,cols))
@@ -792,11 +837,14 @@ void GameWindow::overcheck()
         }
     }
 }
-bool GameWindow::blockcorrect(int tmp[4][4], int posX, int posY) {
+bool GameWindow::blockcorrect(int tmp[4][4], int posX, int posY)
+{
     int ROW = p_game->ROW;
     int COL = p_game->COL;
-    for (int i = 0; i < 4; i++) {
-        for (int j = 0; j < 4; j++) {
+    for (int i = 0; i < 4; i++)
+    {
+        for (int j = 0; j < 4; j++)
+        {
             if (tmp[i][j] != 0) {
                 int x = posX + i;
                 int y = posY + j;
@@ -809,29 +857,15 @@ bool GameWindow::blockcorrect(int tmp[4][4], int posX, int posY) {
     }
     return true;
 }
-bool GameWindow::pu_under_correct()
-{
-    int ROW=p_game->ROW;
-    int COL=p_game->COL;
-    for (int i = 0; i < 4; i++)
-    {
-        for (int j = 0; j < 4; j++)
-        {
-            if (p_game->curblock.cur_encoding_block[i][j] != 0)
-            {
-                int x = p_game->axis_row + i;
-                int y = p_game->axis_col + j;
-                if (x<0 || x>=ROW || y<0 || y>=COL)
-                    return false;
-                if(p_game->encoding_board[x][y] == -1)
-                    return false;
-            }
-        }
-    }
-    return true;
-}
 bool GameWindow::is_valid(int x, int y) {
-    return (x >= 0 && x < p_game->ROW && y >= 0 && y < p_game->COL);
+    bool res=(x >= 0 && x < p_game->ROW && y >= 0 && y < p_game->COL);
+    return res;
+}
+void GameWindow::delay()
+{
+    QEventLoop loop;
+    QTimer::singleShot(500, &loop, &QEventLoop::quit);
+    loop.exec();
 }
 void GameWindow::over()
 {
