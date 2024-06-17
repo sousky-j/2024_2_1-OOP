@@ -51,7 +51,6 @@ public:
     void drop_tet_on_pu();//테트로미노가 내려가고 내리는 로직 함수
     bool pu_under_correct();//테트로미노가 내려갈 때 비어있거나 뿌요만 있는지
     void swap_drop_tet();//뿌요 아래로 테트가 내려가도록 보드를 조정하는 함수
-    void delay();
     unordered_map<string, QColor> Colors = {
         {"White", QColor(255, 255, 255)},//literally
         {"Gray", QColor(128,128,128)},  //literally

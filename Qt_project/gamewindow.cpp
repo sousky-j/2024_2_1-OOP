@@ -223,7 +223,7 @@ void GameWindow::keyPressEvent(QKeyEvent *event)
             break;
         }
     }
-}
+    }
 void GameWindow::timerEvent(QTimerEvent* event)
 {
     if (p_game->gameover == true)
@@ -249,8 +249,6 @@ void GameWindow::drawNext()
             cur_next[p_game->front_id]=p_game->combi[distribution(rd)%32];
         p_game->front_id=(p_game->front_id+1)%LENGTH;
         p_game->back_id=(p_game->back_id+1)%LENGTH;
-
-        (p_game->score)++;
     }
     else
         dropblock();//드롭
@@ -601,6 +599,7 @@ void GameWindow::main_delete_puyo()//뿌요 지울 때 호출하는 메인 삭�
             break;
     }
     pu_drop();  // 중력 적용
+    update();
 }
 void GameWindow::bfs_pu(int x, int y, vector<vector<bool>>& visited, vector<pair<int, int>>& to_pop)
 {
@@ -860,12 +859,6 @@ bool GameWindow::blockcorrect(int tmp[4][4], int posX, int posY)
 bool GameWindow::is_valid(int x, int y) {
     bool res=(x >= 0 && x < p_game->ROW && y >= 0 && y < p_game->COL);
     return res;
-}
-void GameWindow::delay()
-{
-    QEventLoop loop;
-    QTimer::singleShot(500, &loop, &QEventLoop::quit);
-    loop.exec();
 }
 void GameWindow::over()
 {

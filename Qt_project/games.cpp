@@ -87,7 +87,7 @@ TetrisGame::TetrisGame() : Game(22, 10, 5)
         cnt++;
     }
 
-    score = 1;
+    score = 0;
 }
 
 PuyopuyoTetrisGame::PuyopuyoTetrisGame() : Game(18, 8, 5)
@@ -100,7 +100,7 @@ PuyopuyoTetrisGame::PuyopuyoTetrisGame() : Game(18, 8, 5)
         if(i==LENGTH) i=0;
         cnt++;
     }
-    score = 2;
+    score = 0;
 }
 
 PuyopuyoGame::~PuyopuyoGame()
